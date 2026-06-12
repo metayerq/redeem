@@ -3,18 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin — stats &amp; export</title>
+<title>Admin — stats &amp; contacts</title>
 <style>
   :root { --ginger: #c9701a; --ink: #3a2a1a; }
   * { box-sizing: border-box; margin: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #fdf6ec; color: var(--ink);
-    min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 20px;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px;
   }
-  .card { width: 100%; max-width: 420px; background: #fff; border-radius: 20px; padding: 26px 22px; box-shadow: 0 6px 24px rgba(58,42,26,.12); }
+  .card { width: 100%; max-width: 680px; background: #fff; border-radius: 20px; padding: 26px 22px; box-shadow: 0 6px 24px rgba(58,42,26,.12); }
   h1 { font-size: 1.3rem; margin-bottom: 18px; }
-  input { width: 100%; padding: 14px; font-size: 1.1rem; border: 2px solid #e6dac9; border-radius: 12px; letter-spacing: 6px; text-align: center; }
+  h2 { font-size: 1rem; margin: 22px 0 10px; }
+  input#pin { width: 100%; padding: 14px; font-size: 1.1rem; border: 2px solid #e6dac9; border-radius: 12px; letter-spacing: 6px; text-align: center; }
+  input#search { width: 100%; padding: 11px 14px; font-size: .9rem; border: 2px solid #e6dac9; border-radius: 12px; margin-bottom: 10px; }
+  input:focus { outline: none; border-color: var(--ginger); }
   button { width: 100%; margin-top: 14px; padding: 15px; font-size: 1rem; font-weight: 700; color: #fff; background: var(--ginger); border: none; border-radius: 12px; cursor: pointer; }
   .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 18px 0; }
   .stat { background: #fdf6ec; border-radius: 12px; padding: 14px 6px; text-align: center; }
@@ -23,6 +26,18 @@
   .hidden { display: none; }
   a { color: var(--ginger); font-size: .8rem; display: block; text-align: center; margin-top: 18px; }
   .err { color: #b3261e; font-size: .85rem; margin-top: 10px; text-align: center; }
+  /* ── tableau contacts ── */
+  .table-wrap { overflow-x: auto; border: 1px solid #f0e6d6; border-radius: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  th, td { padding: 9px 10px; text-align: left; white-space: nowrap; }
+  th { background: #fdf6ec; color: #7a6650; font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; position: sticky; top: 0; }
+  tr:not(:last-child) td { border-bottom: 1px solid #f5ede0; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: .7rem; font-weight: 700; }
+  .badge.ok { background: #e4f3e5; color: #2e7d32; }
+  .badge.no { background: #f3eee7; color: #9a8a76; }
+  .badge.used { background: #fdeaea; color: #b3261e; }
+  .empty { text-align: center; color: #9a8a76; padding: 24px; font-size: .9rem; }
+  .count { font-size: .75rem; color: #9a8a76; font-weight: 400; }
 </style>
 </head>
 <body>
@@ -30,7 +45,7 @@
   <section id="login">
     <h1>🔐 PIN admin</h1>
     <input type="password" id="pin" inputmode="numeric" placeholder="····">
-    <button id="login-btn">Voir les stats</button>
+    <button id="login-btn">Entrer</button>
     <p class="err" id="err"></p>
   </section>
 
@@ -41,13 +56,47 @@
       <div class="stat"><b id="s-redeemed">–</b><span>utilisés</span></div>
       <div class="stat"><b id="s-optins">–</b><span>opt-in news</span></div>
     </div>
-    <button id="export-btn">⬇ Exporter les contacts (CSV)</button>
+
+    <h2>👥 Contacts <span class="count" id="count"></span></h2>
+    <input type="search" id="search" placeholder="Rechercher un email, prénom, téléphone, code…">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Email</th><th>Prénom</th><th>Téléphone</th><th>News</th><th>Code</th><th>Bon</th><th>Inscrit le</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="empty hidden" id="empty">Aucun contact pour l'instant.</div>
+    </div>
+
+    <button id="export-btn">⬇ Exporter en CSV</button>
     <a href="/staff">→ Retour à la validation des bons</a>
   </section>
 </div>
 <script>
 const $ = (id) => document.getElementById(id);
 let pin = sessionStorage.getItem('gb-pin') || '';
+let contacts = [];
+
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtDate = (iso) => new Date(iso).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+function render() {
+  const q = $('search').value.trim().toLowerCase();
+  const list = q
+    ? contacts.filter((c) => [c.email, c.first_name, c.phone, c.code].join(' ').toLowerCase().includes(q))
+    : contacts;
+  $('rows').innerHTML = list.map((c) => `
+    <tr>
+      <td>${esc(c.email)}</td>
+      <td>${esc(c.first_name) || '–'}</td>
+      <td>${esc(c.phone) || '–'}</td>
+      <td><span class="badge ${c.marketing_opt_in ? 'ok' : 'no'}">${c.marketing_opt_in ? 'oui' : 'non'}</span></td>
+      <td><code>${esc(c.code)}</code></td>
+      <td><span class="badge ${c.redeemed_at ? 'used' : 'ok'}">${c.redeemed_at ? 'utilisé' : 'à servir'}</span></td>
+      <td>${fmtDate(c.created_at)}</td>
+    </tr>`).join('');
+  $('empty').classList.toggle('hidden', list.length > 0);
+  $('count').textContent = q ? `(${list.length} / ${contacts.length})` : `(${contacts.length})`;
+}
 
 async function loadStats() {
   const r = await fetch('/api/stats', {
@@ -60,6 +109,8 @@ async function loadStats() {
   $('s-issued').textContent = s.issued;
   $('s-redeemed').textContent = s.redeemed;
   $('s-optins').textContent = s.optIns;
+  contacts = s.contacts || [];
+  render();
   $('login').classList.add('hidden');
   $('panel').classList.remove('hidden');
   return true;
@@ -70,6 +121,8 @@ $('login-btn').addEventListener('click', async () => {
   pin = $('pin').value;
   if (await loadStats()) sessionStorage.setItem('gb-pin', pin);
 });
+$('pin').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('login-btn').click(); });
+$('search').addEventListener('input', render);
 
 $('export-btn').addEventListener('click', async () => {
   const r = await fetch('/api/export', {
