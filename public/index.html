@@ -3,151 +3,173 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>🎁 Ginger beer offerte</title>
+<title>Ginger beer offerte — Estudantina</title>
 <style>
   :root {
-    --ginger: #c9701a;
-    --ginger-dark: #9a5210;
-    --cream: #fdf6ec;
-    --ink: #3a2a1a;
-    --ok: #2e7d32;
+    --bg: #f6f1e3;
+    --surface: #fffdf6;
+    --green: #1c5e3c;
+    --green-dark: #154a2f;
+    --ink: #232a24;
+    --muted: #7c7a6c;
+    --border: #e2dbc6;
   }
   * { box-sizing: border-box; margin: 0; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--cream);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
     color: var(--ink);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 24px 20px 48px;
+    padding: 40px 20px 48px;
+  }
+  .wordmark {
+    font-size: .95rem;
+    font-weight: 700;
+    letter-spacing: .35em;
+    color: var(--green);
+    margin-bottom: 28px;
+    text-align: center;
   }
   .card {
     width: 100%;
     max-width: 420px;
-    background: #fff;
-    border-radius: 20px;
-    padding: 28px 24px;
-    box-shadow: 0 6px 24px rgba(58, 42, 26, .12);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 26px;
   }
-  h1 { font-size: 1.5rem; line-height: 1.25; margin-bottom: 8px; }
-  p.sub { color: #7a6650; margin-bottom: 20px; font-size: .95rem; }
-  .emoji { font-size: 3rem; text-align: center; display: block; margin-bottom: 10px; }
-  label { display: block; font-weight: 600; font-size: .85rem; margin: 14px 0 4px; }
-  label .opt { font-weight: 400; color: #9a8a76; }
+  h1 { font-size: 1.35rem; line-height: 1.35; font-weight: 600; margin-bottom: 10px; }
+  p.sub { color: var(--muted); margin-bottom: 24px; font-size: .92rem; line-height: 1.5; }
+  label {
+    display: block;
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 18px 0 6px;
+  }
   input[type=email], input[type=tel], input[type=text] {
     width: 100%;
-    padding: 14px;
+    padding: 13px 14px;
     font-size: 1rem;
-    border: 2px solid #e6dac9;
-    border-radius: 12px;
-    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
   }
-  input:focus { outline: none; border-color: var(--ginger); }
-  .consent { display: flex; gap: 10px; align-items: flex-start; margin: 16px 0 4px; font-size: .82rem; color: #5d4c39; }
-  .consent input { width: 20px; height: 20px; margin-top: 1px; accent-color: var(--ginger); }
+  input::placeholder { color: #b9b4a0; }
+  input:focus { outline: none; border-color: var(--green); }
+  .consent { display: flex; gap: 10px; align-items: flex-start; margin: 20px 0 4px; font-size: .85rem; color: var(--ink); line-height: 1.45; }
+  .consent input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--green); }
   button.cta {
     width: 100%;
-    margin-top: 18px;
-    padding: 16px;
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #fff;
-    background: var(--ginger);
+    margin-top: 22px;
+    padding: 15px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--bg);
+    background: var(--green);
     border: none;
-    border-radius: 14px;
+    border-radius: 8px;
     cursor: pointer;
   }
-  button.cta:active { background: var(--ginger-dark); }
+  button.cta:active { background: var(--green-dark); }
   button.ghost {
     width: 100%;
     margin-top: 12px;
-    padding: 14px;
-    font-size: .95rem;
+    padding: 13px;
+    font-size: .92rem;
     font-weight: 600;
-    color: var(--ginger-dark);
+    color: var(--green);
     background: none;
-    border: 2px solid var(--ginger);
-    border-radius: 14px;
+    border: 1px solid var(--green);
+    border-radius: 8px;
     cursor: pointer;
   }
-  .error { color: #b3261e; font-size: .85rem; margin-top: 10px; display: none; }
+  .error { color: #8c2f24; font-size: .85rem; margin-top: 12px; display: none; }
   .hidden { display: none; }
-  /* ── voucher ── */
   .voucher {
-    border: 3px dashed var(--ginger);
-    border-radius: 16px;
-    padding: 22px 16px;
+    border: 1.5px dashed var(--green);
+    border-radius: 10px;
+    padding: 26px 16px;
     text-align: center;
-    background: var(--cream);
-    margin: 18px 0;
+    margin: 22px 0;
+  }
+  .voucher .label {
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--green);
   }
   .voucher .code {
     font-family: ui-monospace, 'SF Mono', Menlo, monospace;
-    font-size: 2.1rem;
-    font-weight: 800;
-    letter-spacing: 3px;
-    color: var(--ginger-dark);
-    margin: 8px 0;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--green-dark);
+    margin: 12px 0 10px;
   }
-  .voucher .validity { font-size: .82rem; color: #7a6650; }
-  .tip { font-size: .85rem; color: #5d4c39; text-align: center; background: #fff7e8; border-radius: 10px; padding: 10px; }
-  footer { margin-top: 18px; font-size: .72rem; color: #b0a18d; text-align: center; max-width: 420px; }
+  .voucher .validity { font-size: .8rem; color: var(--muted); }
+  .tip { font-size: .85rem; color: var(--muted); text-align: center; line-height: 1.5; }
+  footer { margin-top: 22px; font-size: .72rem; color: #aaa48e; text-align: center; max-width: 420px; line-height: 1.5; }
 </style>
 </head>
 <body>
+
+<div class="wordmark">ESTUDANTINA</div>
 
 <div class="card">
 
   <!-- Étape 1 : formulaire -->
   <section id="step-form">
-    <span class="emoji">🫚🍺</span>
-    <h1>Une ginger beer offerte à ton prochain passage&nbsp;!</h1>
-    <p class="sub">Laisse-nous ton email, ton bon t'attend juste derrière. Promis, pas de spam — juste nos soirées, concerts et bons plans.</p>
+    <h1>Une ginger beer offerte à votre prochain passage.</h1>
+    <p class="sub">Laissez-nous votre email, votre bon vous attend. Nous nous en servirons uniquement pour vous tenir au courant de ce qui se passe au café.</p>
     <form id="claim-form">
       <label for="email">Email</label>
-      <input type="email" id="email" required autocomplete="email" placeholder="toi@exemple.fr" inputmode="email">
-      <label for="firstName">Prénom <span class="opt">(optionnel)</span></label>
-      <input type="text" id="firstName" autocomplete="given-name" placeholder="Pour qu'on te dise bonjour 👋">
-      <label for="phone">Téléphone <span class="opt">(optionnel)</span></label>
-      <input type="tel" id="phone" autocomplete="tel" placeholder="06 12 34 56 78" inputmode="tel">
+      <input type="email" id="email" required autocomplete="email" placeholder="vous@exemple.com" inputmode="email">
+      <label for="firstName">Prénom — optionnel</label>
+      <input type="text" id="firstName" autocomplete="given-name">
+      <label for="phone">Téléphone — optionnel</label>
+      <input type="tel" id="phone" autocomplete="tel" inputmode="tel">
       <div class="consent">
         <input type="checkbox" id="optin" checked>
-        <span>Je veux recevoir les événements, annonces et offres du café par email. <span id="optin-cafe"></span></span>
+        <span>Tenez-moi au courant des événements et nouveautés du café.</span>
       </div>
-      <button type="submit" class="cta">Je veux ma ginger beer 🎁</button>
+      <button type="submit" class="cta">Obtenir mon bon</button>
       <p class="error" id="form-error"></p>
     </form>
   </section>
 
-  <!-- Étape 2 : nudge Instagram -->
+  <!-- Étape 2 : Instagram -->
   <section id="step-insta" class="hidden">
-    <span class="emoji">📸</span>
-    <h1>Dernière chose…</h1>
-    <p class="sub">Suis-nous sur Instagram pour ne rien rater de la suite (et nous faire très plaisir).</p>
-    <a id="insta-link" href="#" target="_blank" rel="noopener"><button type="button" class="cta">Suivre sur Instagram ❤️</button></a>
-    <button type="button" class="ghost" id="skip-insta">Voir mon bon →</button>
+    <h1>Une dernière chose.</h1>
+    <p class="sub">Tout ce qui se passe au café s'annonce d'abord sur Instagram.</p>
+    <a id="insta-link" href="#" target="_blank" rel="noopener"><button type="button" class="cta">Suivre @estudantina.cafe</button></a>
+    <button type="button" class="ghost" id="skip-insta">Voir mon bon</button>
   </section>
 
   <!-- Étape 3 : le bon -->
   <section id="step-voucher" class="hidden">
-    <span class="emoji">🎉</span>
-    <h1 id="voucher-title">C'est dans la poche&nbsp;!</h1>
-    <p class="sub">Montre ce code au comptoir lors de ton prochain passage.</p>
+    <h1 id="voucher-title">Votre bon est prêt.</h1>
+    <p class="sub">Présentez ce code au comptoir lors de votre prochain passage.</p>
     <div class="voucher">
-      <div>🫚 1 GINGER BEER OFFERTE 🫚</div>
+      <div class="label">Une ginger beer offerte</div>
       <div class="code" id="voucher-code">GB-····</div>
       <div class="validity" id="voucher-validity"></div>
     </div>
-    <p class="tip" id="voucher-tip">📱 Fais une capture d'écran ! (Le bon réapparaîtra aussi si tu rescannes le QR code sur ce téléphone.)</p>
+    <p class="tip" id="voucher-tip">Une capture d'écran suffit. Le bon réapparaîtra si vous rescannez le QR code sur ce téléphone.</p>
   </section>
 
 </div>
 
 <footer>
-  Tes données servent uniquement à gérer ton bon et, si tu as coché la case, à t'envoyer nos actualités.
-  Désinscription en un clic dans chaque email, suppression sur simple demande au comptoir ou par email.
+  Vos données servent uniquement à gérer votre bon et, si vous avez coché la case, à vous envoyer nos actualités.
+  Désinscription en un clic dans chaque email, suppression sur simple demande.
 </footer>
 
 <script>
@@ -162,16 +184,15 @@ const fmtDate = (iso) => new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR',
 
 function showVoucher(v, returning) {
   $('voucher-code').textContent = v.code;
-  $('voucher-validity').textContent = `Valable du ${fmtDate(v.validFrom)} au ${fmtDate(v.validUntil)} · usage unique`;
-  if (returning) $('voucher-title').textContent = 'Re-bonjour ! Voici ton bon 👇';
-  if (v.emailSent) $('voucher-tip').textContent = '📧 On te l\'a aussi envoyé par email — mais une capture d\'écran, c\'est encore plus sûr !';
+  $('voucher-validity').textContent = `Valable du ${fmtDate(v.validFrom)} au ${fmtDate(v.validUntil)} — usage unique`;
+  if (returning) $('voucher-title').textContent = 'Votre bon.';
+  if (v.emailSent) $('voucher-tip').textContent = 'Vous le retrouverez aussi dans votre boîte mail. Une capture d\'écran suffit au comptoir.';
   show('step-voucher');
 }
 
-// config (handle insta) + bon déjà obtenu sur ce téléphone ?
 fetch('/api/config').then((r) => r.json()).then((cfg) => {
   $('insta-link').href = 'https://instagram.com/' + cfg.instagramHandle;
-  document.title = '🎁 Ginger beer offerte — ' + cfg.cafeName;
+  $('insta-link').querySelector('button').textContent = 'Suivre @' + cfg.instagramHandle;
 });
 const saved = localStorage.getItem('gb-voucher');
 if (saved) showVoucher(JSON.parse(saved), true);
@@ -193,7 +214,7 @@ $('claim-form').addEventListener('submit', async (e) => {
       }),
     });
     const data = await r.json();
-    if (!r.ok) throw new Error(data.error || 'Erreur, réessaie !');
+    if (!r.ok) throw new Error(data.error || 'Une erreur est survenue. Réessayez.');
     localStorage.setItem('gb-voucher', JSON.stringify(data));
     window.gbVoucher = data;
     if (data.alreadyExisted) showVoucher(data, true);
@@ -207,7 +228,6 @@ $('claim-form').addEventListener('submit', async (e) => {
 });
 
 $('insta-link').addEventListener('click', () => {
-  // après l'ouverture d'Instagram, le bon attend au retour sur l'onglet
   setTimeout(() => showVoucher(window.gbVoucher, false), 500);
 });
 $('skip-insta').addEventListener('click', () => showVoucher(window.gbVoucher, false));

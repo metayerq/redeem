@@ -2,10 +2,10 @@
 // Les fichiers préfixés par "_" ne sont pas exposés comme endpoints par Vercel.
 
 const CONFIG = {
-  cafeName: process.env.CAFE_NAME || 'Mon Café',
-  instagramHandle: process.env.INSTAGRAM_HANDLE || 'moncafe',
-  validFrom: process.env.VALID_FROM || '2026-06-13', // lendemain de l'inauguration
-  validUntil: process.env.VALID_UNTIL || '2026-07-13', // J+30
+  cafeName: process.env.CAFE_NAME || 'Estudantina',
+  instagramHandle: process.env.INSTAGRAM_HANDLE || 'estudantina.cafe',
+  validFrom: process.env.VALID_FROM || '2026-06-19', // lendemain de l'opening party (18 juin)
+  validUntil: process.env.VALID_UNTIL || '2026-07-19', // J+30
 };
 
 // ── Supabase (API REST, clé secrète côté serveur uniquement) ──
@@ -74,20 +74,20 @@ async function sendVoucherEmail({ email, firstName, code }) {
       body: JSON.stringify({
         sender: { name: CONFIG.cafeName, email: sender },
         to: [{ email }],
-        subject: `🫚 Ton bon pour une ginger beer offerte — ${CONFIG.cafeName}`,
+        subject: `Votre ginger beer offerte — ${CONFIG.cafeName}`,
         htmlContent: `
-          <div style="font-family:sans-serif;max-width:480px;margin:auto;color:#3a2a1a">
-            <h2>Salut${firstName ? ' ' + firstName : ''} 👋</h2>
-            <p>Merci d'être passé·e pour notre inauguration ! Voici ton bon pour
-            <b>une ginger beer offerte</b> lors de ton prochain passage :</p>
-            <div style="border:3px dashed #c9701a;border-radius:14px;padding:20px;text-align:center;background:#fdf6ec">
-              <div style="font-size:30px;font-weight:800;letter-spacing:3px;color:#9a5210;font-family:monospace">${code}</div>
-              <div style="font-size:13px;color:#7a6650;margin-top:6px">
-                Valable du ${fmt(CONFIG.validFrom)} au ${fmt(CONFIG.validUntil)} · usage unique
+          <div style="background:#f6f1e3;padding:32px 16px">
+            <div style="font-family:-apple-system,'Segoe UI','Helvetica Neue',Arial,sans-serif;max-width:440px;margin:auto;color:#232a24;background:#fffdf6;border:1px solid #e2dbc6;border-radius:12px;padding:32px 28px">
+              <div style="font-size:13px;font-weight:700;letter-spacing:5px;color:#1c5e3c;text-align:center;margin-bottom:24px">ESTUDANTINA</div>
+              <p style="margin:0 0 8px;font-size:17px;font-weight:600">Bonjour${firstName ? ' ' + firstName : ''},</p>
+              <p style="margin:0 0 22px;font-size:14px;line-height:1.6;color:#7c7a6c">Merci d'être passé pour l'inauguration. Voici votre bon pour une ginger beer offerte, à présenter au comptoir lors de votre prochain passage.</p>
+              <div style="border:1.5px dashed #1c5e3c;border-radius:10px;padding:24px 16px;text-align:center">
+                <div style="font-size:11px;font-weight:600;letter-spacing:2px;color:#1c5e3c;text-transform:uppercase">Une ginger beer offerte</div>
+                <div style="font-size:28px;font-weight:700;letter-spacing:4px;color:#154a2f;font-family:'SF Mono',Menlo,monospace;margin:12px 0 10px">${code}</div>
+                <div style="font-size:12px;color:#7c7a6c">Valable du ${fmt(CONFIG.validFrom)} au ${fmt(CONFIG.validUntil)} — usage unique</div>
               </div>
+              <p style="margin:22px 0 0;font-size:13px;line-height:1.6;color:#7c7a6c">À bientôt,<br>${CONFIG.cafeName} — <a href="https://instagram.com/${CONFIG.instagramHandle}" style="color:#1c5e3c">@${CONFIG.instagramHandle}</a></p>
             </div>
-            <p>Montre ce code au comptoir, et c'est tout. À très vite !</p>
-            <p>— L'équipe ${CONFIG.cafeName} · <a href="https://instagram.com/${CONFIG.instagramHandle}">@${CONFIG.instagramHandle}</a></p>
           </div>`,
       }),
     });

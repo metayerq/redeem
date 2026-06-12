@@ -3,55 +3,65 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Staff — validation des bons</title>
+<title>Staff — Estudantina</title>
 <style>
-  :root { --ginger: #c9701a; --cream: #fdf6ec; --ink: #3a2a1a; }
+  :root {
+    --bg: #154a2f;
+    --cream: #f6f1e3;
+    --green: #1c5e3c;
+    --border: rgba(246, 241, 227, .25);
+  }
   * { box-sizing: border-box; margin: 0; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--ink); color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg); color: var(--cream);
     min-height: 100vh; display: flex; flex-direction: column; align-items: center;
-    padding: 24px 20px;
+    padding: 40px 20px;
   }
+  .wordmark { font-size: .8rem; font-weight: 700; letter-spacing: .35em; margin-bottom: 26px; opacity: .85; }
   .card { width: 100%; max-width: 420px; }
-  h1 { font-size: 1.3rem; margin-bottom: 18px; text-align: center; }
+  h1 { font-size: 1.15rem; font-weight: 600; margin-bottom: 18px; text-align: center; }
   input {
-    width: 100%; padding: 18px; font-size: 1.6rem; text-align: center;
+    width: 100%; padding: 16px; font-size: 1.5rem; text-align: center;
     font-family: ui-monospace, Menlo, monospace; letter-spacing: 3px;
-    border: none; border-radius: 14px; text-transform: uppercase;
+    border: 1px solid var(--border); border-radius: 10px; text-transform: uppercase;
+    background: #fffdf6; color: #232a24;
   }
+  input:focus { outline: none; }
   input#pin { font-size: 1.2rem; letter-spacing: 8px; }
   button {
-    width: 100%; margin-top: 14px; padding: 18px; font-size: 1.15rem; font-weight: 700;
-    color: #fff; background: var(--ginger); border: none; border-radius: 14px; cursor: pointer;
+    width: 100%; margin-top: 14px; padding: 16px; font-size: 1.05rem; font-weight: 600;
+    color: var(--green); background: var(--cream); border: none; border-radius: 10px; cursor: pointer;
   }
   .result {
-    margin-top: 20px; padding: 26px 16px; border-radius: 16px;
-    text-align: center; font-size: 1.3rem; font-weight: 800; display: none;
+    margin-top: 20px; padding: 26px 16px; border-radius: 10px;
+    text-align: center; font-size: 1.25rem; font-weight: 700; display: none;
+    letter-spacing: .04em;
   }
-  .result small { display: block; font-size: .85rem; font-weight: 400; margin-top: 8px; opacity: .85; }
-  .ok { background: #2e7d32; }
-  .bad { background: #b3261e; }
-  .warn { background: #b07a00; }
+  .result small { display: block; font-size: .85rem; font-weight: 400; margin-top: 8px; opacity: .8; letter-spacing: 0; }
+  .ok   { background: #e9f1e4; color: #1c5e3c; }
+  .bad  { background: #f3e2dd; color: #8c2f24; }
+  .warn { background: #f3ecd8; color: #8a6d1f; }
   .hidden { display: none; }
-  a { color: #d9b48a; font-size: .8rem; display: block; text-align: center; margin-top: 22px; }
+  a { color: var(--cream); opacity: .65; font-size: .8rem; display: block; text-align: center; margin-top: 24px; }
 </style>
 </head>
 <body>
+<div class="wordmark">ESTUDANTINA</div>
 <div class="card">
 
   <section id="login">
-    <h1>🔐 PIN staff</h1>
-    <input type="password" id="pin" inputmode="numeric" autocomplete="off" placeholder="····">
+    <h1>PIN staff</h1>
+    <input type="password" id="pin" inputmode="numeric" autocomplete="off">
     <button id="login-btn">Entrer</button>
   </section>
 
   <section id="redeem" class="hidden">
-    <h1>☕ Valider un bon</h1>
+    <h1>Valider un bon</h1>
     <input type="text" id="code" autocomplete="off" autocapitalize="characters" placeholder="GB-XXXX">
-    <button id="redeem-btn">Valider ✔</button>
+    <button id="redeem-btn">Valider</button>
     <div class="result" id="result"></div>
-    <a href="/admin">→ Stats &amp; export des contacts</a>
+    <a href="/admin">Stats et contacts</a>
   </section>
 
 </div>
@@ -75,11 +85,11 @@ $('pin').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('login-bt
 $('code').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('redeem-btn').click(); });
 
 const MESSAGES = {
-  redeemed:        { cls: 'ok',   text: '✅ BON VALIDE', sub: 'Une ginger beer offerte !' },
-  already_redeemed:{ cls: 'bad',  text: '❌ DÉJÀ UTILISÉ', sub: '' },
-  unknown:         { cls: 'bad',  text: '❌ CODE INCONNU', sub: 'Vérifie la saisie.' },
-  not_yet_valid:   { cls: 'warn', text: '⏳ PAS ENCORE VALABLE', sub: '' },
-  expired:         { cls: 'warn', text: '⌛ BON EXPIRÉ', sub: '' },
+  redeemed:         { cls: 'ok',   text: 'BON VALIDE', sub: 'Une ginger beer offerte.' },
+  already_redeemed: { cls: 'bad',  text: 'DÉJÀ UTILISÉ', sub: '' },
+  unknown:          { cls: 'bad',  text: 'CODE INCONNU', sub: 'Vérifiez la saisie.' },
+  not_yet_valid:    { cls: 'warn', text: 'PAS ENCORE VALABLE', sub: '' },
+  expired:          { cls: 'warn', text: 'BON EXPIRÉ', sub: '' },
 };
 
 $('redeem-btn').addEventListener('click', async () => {
@@ -97,14 +107,14 @@ $('redeem-btn').addEventListener('click', async () => {
   if (r.status === 401) {
     sessionStorage.removeItem('gb-pin');
     el.className = 'result bad';
-    el.textContent = '🔐 PIN incorrect — recharge la page';
+    el.textContent = 'PIN incorrect — rechargez la page';
     return;
   }
   const m = MESSAGES[data.status] || MESSAGES.unknown;
   el.className = 'result ' + m.cls;
   el.innerHTML = m.text + '<small></small>';
   let sub = m.sub;
-  if (data.status === 'redeemed' && data.firstName) sub = `Une ginger beer offerte pour ${data.firstName} !`;
+  if (data.status === 'redeemed' && data.firstName) sub = `Une ginger beer offerte pour ${data.firstName}.`;
   if (data.status === 'already_redeemed') sub = 'Le ' + new Date(data.redeemedAt).toLocaleString('fr-FR');
   if (data.status === 'not_yet_valid') sub = 'Valable à partir du ' + new Date(data.validFrom + 'T12:00:00').toLocaleDateString('fr-FR');
   el.querySelector('small').textContent = sub;

@@ -3,62 +3,73 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin — stats &amp; contacts</title>
+<title>Admin — Estudantina</title>
 <style>
-  :root { --ginger: #c9701a; --ink: #3a2a1a; }
+  :root {
+    --bg: #f6f1e3;
+    --surface: #fffdf6;
+    --green: #1c5e3c;
+    --green-dark: #154a2f;
+    --ink: #232a24;
+    --muted: #7c7a6c;
+    --border: #e2dbc6;
+  }
   * { box-sizing: border-box; margin: 0; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #fdf6ec; color: var(--ink);
-    min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg); color: var(--ink);
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 16px;
   }
-  .card { width: 100%; max-width: 680px; background: #fff; border-radius: 20px; padding: 26px 22px; box-shadow: 0 6px 24px rgba(58,42,26,.12); }
-  h1 { font-size: 1.3rem; margin-bottom: 18px; }
-  h2 { font-size: 1rem; margin: 22px 0 10px; }
-  input#pin { width: 100%; padding: 14px; font-size: 1.1rem; border: 2px solid #e6dac9; border-radius: 12px; letter-spacing: 6px; text-align: center; }
-  input#search { width: 100%; padding: 11px 14px; font-size: .9rem; border: 2px solid #e6dac9; border-radius: 12px; margin-bottom: 10px; }
-  input:focus { outline: none; border-color: var(--ginger); }
-  button { width: 100%; margin-top: 14px; padding: 15px; font-size: 1rem; font-weight: 700; color: #fff; background: var(--ginger); border: none; border-radius: 12px; cursor: pointer; }
-  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 18px 0; }
-  .stat { background: #fdf6ec; border-radius: 12px; padding: 14px 6px; text-align: center; }
-  .stat b { display: block; font-size: 1.7rem; color: var(--ginger); }
-  .stat span { font-size: .72rem; color: #7a6650; }
+  .wordmark { font-size: .8rem; font-weight: 700; letter-spacing: .35em; color: var(--green); margin-bottom: 26px; }
+  .card { width: 100%; max-width: 680px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 30px 26px; }
+  h1 { font-size: 1.2rem; font-weight: 600; margin-bottom: 18px; }
+  h2 { font-size: .75rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 26px 0 10px; }
+  input#pin { width: 100%; padding: 14px; font-size: 1.1rem; border: 1px solid var(--border); border-radius: 8px; letter-spacing: 6px; text-align: center; background: var(--surface); }
+  input#search { width: 100%; padding: 11px 14px; font-size: .9rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; background: var(--surface); }
+  input:focus { outline: none; border-color: var(--green); }
+  button { width: 100%; margin-top: 16px; padding: 14px; font-size: .95rem; font-weight: 600; color: var(--bg); background: var(--green); border: none; border-radius: 8px; cursor: pointer; }
+  button:active { background: var(--green-dark); }
+  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 18px 0 4px; }
+  .stat { border: 1px solid var(--border); border-radius: 8px; padding: 14px 6px; text-align: center; }
+  .stat b { display: block; font-size: 1.6rem; font-weight: 600; color: var(--green); }
+  .stat span { font-size: .7rem; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; }
   .hidden { display: none; }
-  a { color: var(--ginger); font-size: .8rem; display: block; text-align: center; margin-top: 18px; }
-  .err { color: #b3261e; font-size: .85rem; margin-top: 10px; text-align: center; }
-  /* ── tableau contacts ── */
-  .table-wrap { overflow-x: auto; border: 1px solid #f0e6d6; border-radius: 12px; }
+  a { color: var(--green); font-size: .8rem; display: block; text-align: center; margin-top: 18px; }
+  .err { color: #8c2f24; font-size: .85rem; margin-top: 10px; text-align: center; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
   table { width: 100%; border-collapse: collapse; font-size: .82rem; }
   th, td { padding: 9px 10px; text-align: left; white-space: nowrap; }
-  th { background: #fdf6ec; color: #7a6650; font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; position: sticky; top: 0; }
-  tr:not(:last-child) td { border-bottom: 1px solid #f5ede0; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: .7rem; font-weight: 700; }
-  .badge.ok { background: #e4f3e5; color: #2e7d32; }
-  .badge.no { background: #f3eee7; color: #9a8a76; }
-  .badge.used { background: #fdeaea; color: #b3261e; }
-  .empty { text-align: center; color: #9a8a76; padding: 24px; font-size: .9rem; }
-  .count { font-size: .75rem; color: #9a8a76; font-weight: 400; }
+  th { background: var(--bg); color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; position: sticky; top: 0; }
+  tr:not(:last-child) td { border-bottom: 1px solid #efe9d8; }
+  td code { font-family: ui-monospace, Menlo, monospace; color: var(--green-dark); }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: .7rem; font-weight: 600; }
+  .badge.ok   { background: #e9f1e4; color: var(--green); }
+  .badge.no   { background: #efe9d8; color: var(--muted); }
+  .badge.used { background: #f3e2dd; color: #8c2f24; }
+  .empty { text-align: center; color: var(--muted); padding: 24px; font-size: .9rem; }
+  .count { font-weight: 400; color: var(--muted); }
 </style>
 </head>
 <body>
+<div class="wordmark">ESTUDANTINA</div>
 <div class="card">
   <section id="login">
-    <h1>🔐 PIN admin</h1>
-    <input type="password" id="pin" inputmode="numeric" placeholder="····">
+    <h1>PIN admin</h1>
+    <input type="password" id="pin" inputmode="numeric">
     <button id="login-btn">Entrer</button>
     <p class="err" id="err"></p>
   </section>
 
   <section id="panel" class="hidden">
-    <h1>📊 Inauguration — suivi</h1>
+    <h1>Suivi</h1>
     <div class="stats">
       <div class="stat"><b id="s-issued">–</b><span>bons émis</span></div>
       <div class="stat"><b id="s-redeemed">–</b><span>utilisés</span></div>
       <div class="stat"><b id="s-optins">–</b><span>opt-in news</span></div>
     </div>
 
-    <h2>👥 Contacts <span class="count" id="count"></span></h2>
-    <input type="search" id="search" placeholder="Rechercher un email, prénom, téléphone, code…">
+    <h2>Contacts <span class="count" id="count"></span></h2>
+    <input type="search" id="search" placeholder="Rechercher — email, prénom, téléphone, code">
     <div class="table-wrap">
       <table>
         <thead><tr><th>Email</th><th>Prénom</th><th>Téléphone</th><th>News</th><th>Code</th><th>Bon</th><th>Inscrit le</th></tr></thead>
@@ -67,8 +78,8 @@
       <div class="empty hidden" id="empty">Aucun contact pour l'instant.</div>
     </div>
 
-    <button id="export-btn">⬇ Exporter en CSV</button>
-    <a href="/staff">→ Retour à la validation des bons</a>
+    <button id="export-btn">Exporter en CSV</button>
+    <a href="/staff">Retour à la validation des bons</a>
   </section>
 </div>
 <script>
@@ -133,7 +144,7 @@ $('export-btn').addEventListener('click', async () => {
   const blob = await r.blob();
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'contacts-cafe.csv';
+  a.download = 'contacts-estudantina.csv';
   a.click();
 });
 </script>
