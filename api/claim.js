@@ -4,7 +4,8 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST uniquement' });
   const body = req.body || {};
   const email = normEmail(body.email);
-  if (!isEmail(email)) return res.status(400).json({ error: 'Email invalide' });
+  if (!isEmail(email)) return res.status(400).json({ error: 'invalid_email' });
+  const lang = body.lang === 'en' ? 'en' : 'pt';
 
   try {
     // 1 email = 1 bon : on renvoie l'existant s'il y en a un
@@ -38,7 +39,7 @@ module.exports = async (req, res) => {
         }
       }
       if (!alreadyExisted) {
-        emailSent = await sendVoucherEmail({ email, firstName: row.first_name, code: voucher.code });
+        emailSent = await sendVoucherEmail({ email, firstName: row.first_name, code: voucher.code, lang });
       }
     }
 

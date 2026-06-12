@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="pt">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Ginger beer offerte — Estudantina</title>
+<title>Ginger beer oferecida — Estudantina</title>
 <style>
   :root {
     --bg: #f6f1e3;
@@ -25,14 +25,38 @@
     align-items: center;
     padding: 40px 20px 48px;
   }
+  .top {
+    width: 100%;
+    max-width: 420px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    margin-bottom: 28px;
+  }
   .wordmark {
+    grid-column: 2;
     font-size: .95rem;
     font-weight: 700;
     letter-spacing: .35em;
     color: var(--green);
-    margin-bottom: 28px;
     text-align: center;
   }
+  .lang {
+    grid-column: 3;
+    justify-self: end;
+    font-size: .75rem;
+    color: var(--muted);
+  }
+  .lang button {
+    background: none;
+    border: none;
+    padding: 2px 3px;
+    font-size: .75rem;
+    color: var(--muted);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .lang button.active { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
   .card {
     width: 100%;
     max-width: 420px;
@@ -121,79 +145,182 @@
 </head>
 <body>
 
-<div class="wordmark">ESTUDANTINA</div>
+<div class="top">
+  <div class="wordmark">ESTUDANTINA</div>
+  <div class="lang">
+    <button id="lang-pt">PT</button>·<button id="lang-en">EN</button>
+  </div>
+</div>
 
 <div class="card">
 
   <!-- Étape 1 : formulaire -->
   <section id="step-form">
-    <h1>Une ginger beer offerte à votre prochain passage.</h1>
-    <p class="sub">Laissez-nous votre email, votre bon vous attend. Nous nous en servirons uniquement pour vous tenir au courant de ce qui se passe au café.</p>
+    <h1 id="t-form-title"></h1>
+    <p class="sub" id="t-form-sub"></p>
     <form id="claim-form">
-      <label for="email">Email</label>
-      <input type="email" id="email" required autocomplete="email" placeholder="vous@exemple.com" inputmode="email">
-      <label for="firstName">Prénom — optionnel</label>
+      <label for="email" id="t-label-email"></label>
+      <input type="email" id="email" required autocomplete="email" inputmode="email">
+      <label for="firstName" id="t-label-name"></label>
       <input type="text" id="firstName" autocomplete="given-name">
-      <label for="phone">Téléphone — optionnel</label>
+      <label for="phone" id="t-label-phone"></label>
       <input type="tel" id="phone" autocomplete="tel" inputmode="tel">
       <div class="consent">
         <input type="checkbox" id="optin" checked>
-        <span>Tenez-moi au courant des événements et nouveautés du café.</span>
+        <span id="t-consent"></span>
       </div>
-      <button type="submit" class="cta">Obtenir mon bon</button>
+      <button type="submit" class="cta" id="t-cta"></button>
       <p class="error" id="form-error"></p>
     </form>
   </section>
 
   <!-- Étape 2 : Instagram -->
   <section id="step-insta" class="hidden">
-    <h1>Une dernière chose.</h1>
-    <p class="sub">Tout ce qui se passe au café s'annonce d'abord sur Instagram.</p>
-    <a id="insta-link" href="#" target="_blank" rel="noopener"><button type="button" class="cta">Suivre @estudantina.cafe</button></a>
-    <button type="button" class="ghost" id="skip-insta">Voir mon bon</button>
+    <h1 id="t-insta-title"></h1>
+    <p class="sub" id="t-insta-sub"></p>
+    <a id="insta-link" href="#" target="_blank" rel="noopener"><button type="button" class="cta" id="t-insta-cta"></button></a>
+    <button type="button" class="ghost" id="skip-insta"></button>
   </section>
 
   <!-- Étape 3 : le bon -->
   <section id="step-voucher" class="hidden">
-    <h1 id="voucher-title">Votre bon est prêt.</h1>
-    <p class="sub">Présentez ce code au comptoir lors de votre prochain passage.</p>
+    <h1 id="voucher-title"></h1>
+    <p class="sub" id="t-voucher-sub"></p>
     <div class="voucher">
-      <div class="label">Une ginger beer offerte</div>
+      <div class="label" id="t-voucher-label"></div>
       <div class="code" id="voucher-code">GB-····</div>
       <div class="validity" id="voucher-validity"></div>
     </div>
-    <p class="tip" id="voucher-tip">Une capture d'écran suffit. Le bon réapparaîtra si vous rescannez le QR code sur ce téléphone.</p>
+    <p class="tip" id="voucher-tip"></p>
   </section>
 
 </div>
 
-<footer>
-  Vos données servent uniquement à gérer votre bon et, si vous avez coché la case, à vous envoyer nos actualités.
-  Désinscription en un clic dans chaque email, suppression sur simple demande.
-</footer>
+<footer id="t-footer"></footer>
 
 <script>
 const $ = (id) => document.getElementById(id);
+
+const T = {
+  pt: {
+    formTitle: 'Uma ginger beer oferecida na tua próxima visita.',
+    formSub: 'Deixa-nos o teu email e o teu vale fica guardado. Usamo-lo apenas para te contar o que se passa no café.',
+    labelEmail: 'Email',
+    labelName: 'Nome — opcional',
+    labelPhone: 'Telemóvel — opcional',
+    emailPlaceholder: 'tu@exemplo.com',
+    consent: 'Quero receber os eventos e novidades do café.',
+    cta: 'Obter o meu vale',
+    instaTitle: 'Só mais uma coisa.',
+    instaSub: 'Tudo o que acontece no café é anunciado primeiro no Instagram.',
+    instaCta: (h) => 'Seguir @' + h,
+    skipInsta: 'Ver o meu vale',
+    voucherReady: 'O teu vale está pronto.',
+    voucherReturning: 'O teu vale.',
+    voucherSub: 'Mostra este código ao balcão na tua próxima visita.',
+    voucherLabel: 'Uma ginger beer oferecida',
+    validity: (a, b) => `Válido de ${a} a ${b} — utilização única`,
+    tip: 'Uma captura de ecrã chega. O vale volta a aparecer se leres o QR code neste telemóvel.',
+    tipEmail: 'Também o encontras no teu email. Ao balcão, uma captura de ecrã chega.',
+    genericError: 'Algo correu mal. Tenta outra vez.',
+    invalidEmail: 'Email inválido.',
+    footer: 'Os teus dados servem apenas para gerir o teu vale e, se marcaste a opção, para te enviarmos as nossas novidades. Cancelamento num clique em cada email; eliminação a pedido.',
+    locale: 'pt-PT',
+    title: 'Ginger beer oferecida — Estudantina',
+  },
+  en: {
+    formTitle: 'A free ginger beer on your next visit.',
+    formSub: 'Leave us your email and your voucher is saved. We only use it to tell you what\'s happening at the café.',
+    labelEmail: 'Email',
+    labelName: 'First name — optional',
+    labelPhone: 'Phone — optional',
+    emailPlaceholder: 'you@example.com',
+    consent: 'Keep me posted on events and news from the café.',
+    cta: 'Get my voucher',
+    instaTitle: 'One more thing.',
+    instaSub: 'Everything that happens at the café is announced on Instagram first.',
+    instaCta: (h) => 'Follow @' + h,
+    skipInsta: 'See my voucher',
+    voucherReady: 'Your voucher is ready.',
+    voucherReturning: 'Your voucher.',
+    voucherSub: 'Show this code at the counter on your next visit.',
+    voucherLabel: 'One free ginger beer',
+    validity: (a, b) => `Valid ${a} – ${b} — single use`,
+    tip: 'A screenshot is all you need. The voucher will reappear if you scan the QR code again on this phone.',
+    tipEmail: 'It\'s also in your inbox. A screenshot works at the counter.',
+    genericError: 'Something went wrong. Please try again.',
+    invalidEmail: 'Invalid email address.',
+    footer: 'Your details are only used to manage your voucher and, if you ticked the box, to send you our news. Unsubscribe in one click in every email; deletion on request.',
+    locale: 'en-GB',
+    title: 'Free ginger beer — Estudantina',
+  },
+};
+
+let lang = localStorage.getItem('gb-lang') || (navigator.language.toLowerCase().startsWith('en') ? 'en' : 'pt');
+let instaHandle = 'estudantina.cafe';
+let voucherState = null; // 'new' | 'returning'
+
+const fmtDate = (iso) => new Date(iso + 'T12:00:00').toLocaleDateString(T[lang].locale, { day: 'numeric', month: 'long' });
+
+function applyLang() {
+  const t = T[lang];
+  document.documentElement.lang = lang;
+  document.title = t.title;
+  $('lang-pt').classList.toggle('active', lang === 'pt');
+  $('lang-en').classList.toggle('active', lang === 'en');
+
+  $('t-form-title').textContent = t.formTitle;
+  $('t-form-sub').textContent = t.formSub;
+  $('t-label-email').textContent = t.labelEmail;
+  $('t-label-name').textContent = t.labelName;
+  $('t-label-phone').textContent = t.labelPhone;
+  $('email').placeholder = t.emailPlaceholder;
+  $('t-consent').textContent = t.consent;
+  $('t-cta').textContent = t.cta;
+  $('t-insta-title').textContent = t.instaTitle;
+  $('t-insta-sub').textContent = t.instaSub;
+  $('t-insta-cta').textContent = t.instaCta(instaHandle);
+  $('skip-insta').textContent = t.skipInsta;
+  $('t-voucher-sub').textContent = t.voucherSub;
+  $('t-voucher-label').textContent = t.voucherLabel;
+  $('t-footer').textContent = t.footer;
+
+  if (voucherState) renderVoucherText();
+}
+
+function renderVoucherText() {
+  const t = T[lang];
+  const v = window.gbVoucher;
+  $('voucher-title').textContent = voucherState === 'returning' ? t.voucherReturning : t.voucherReady;
+  $('voucher-validity').textContent = t.validity(fmtDate(v.validFrom), fmtDate(v.validUntil));
+  $('voucher-tip').textContent = v.emailSent ? t.tipEmail : t.tip;
+}
+
 const show = (id) => {
   for (const s of ['step-form', 'step-insta', 'step-voucher']) $(s).classList.add('hidden');
   $(id).classList.remove('hidden');
   window.scrollTo(0, 0);
 };
 
-const fmtDate = (iso) => new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
-
 function showVoucher(v, returning) {
+  window.gbVoucher = v;
+  voucherState = returning ? 'returning' : 'new';
   $('voucher-code').textContent = v.code;
-  $('voucher-validity').textContent = `Valable du ${fmtDate(v.validFrom)} au ${fmtDate(v.validUntil)} — usage unique`;
-  if (returning) $('voucher-title').textContent = 'Votre bon.';
-  if (v.emailSent) $('voucher-tip').textContent = 'Vous le retrouverez aussi dans votre boîte mail. Une capture d\'écran suffit au comptoir.';
+  renderVoucherText();
   show('step-voucher');
 }
 
+$('lang-pt').addEventListener('click', () => { lang = 'pt'; localStorage.setItem('gb-lang', lang); applyLang(); });
+$('lang-en').addEventListener('click', () => { lang = 'en'; localStorage.setItem('gb-lang', lang); applyLang(); });
+
+applyLang();
+
 fetch('/api/config').then((r) => r.json()).then((cfg) => {
-  $('insta-link').href = 'https://instagram.com/' + cfg.instagramHandle;
-  $('insta-link').querySelector('button').textContent = 'Suivre @' + cfg.instagramHandle;
+  instaHandle = cfg.instagramHandle;
+  $('insta-link').href = 'https://instagram.com/' + instaHandle;
+  $('t-insta-cta').textContent = T[lang].instaCta(instaHandle);
 });
+
 const saved = localStorage.getItem('gb-voucher');
 if (saved) showVoucher(JSON.parse(saved), true);
 
@@ -211,10 +338,11 @@ $('claim-form').addEventListener('submit', async (e) => {
         firstName: $('firstName').value,
         phone: $('phone').value,
         marketingOptIn: $('optin').checked,
+        lang,
       }),
     });
     const data = await r.json();
-    if (!r.ok) throw new Error(data.error || 'Une erreur est survenue. Réessayez.');
+    if (!r.ok) throw new Error(data.error === 'invalid_email' ? T[lang].invalidEmail : T[lang].genericError);
     localStorage.setItem('gb-voucher', JSON.stringify(data));
     window.gbVoucher = data;
     if (data.alreadyExisted) showVoucher(data, true);

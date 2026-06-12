@@ -61,12 +61,34 @@ function checkPin(req, res) {
 }
 
 // ── Brevo : envoi du bon par email (best effort, jamais bloquant) ──
-async function sendVoucherEmail({ email, firstName, code }) {
+const EMAIL_TEXTS = {
+  pt: {
+    subject: (cafe) => `A tua ginger beer oferecida — ${cafe}`,
+    greeting: (name) => `Olá${name ? ' ' + name : ''},`,
+    body: 'Obrigado por teres passado na inauguração. Aqui está o teu vale para uma ginger beer oferecida — mostra-o ao balcão na tua próxima visita.',
+    label: 'Uma ginger beer oferecida',
+    validity: (a, b) => `Válido de ${a} a ${b} — utilização única`,
+    signoff: 'Até já,',
+    locale: 'pt-PT',
+  },
+  en: {
+    subject: (cafe) => `Your free ginger beer — ${cafe}`,
+    greeting: (name) => `Hi${name ? ' ' + name : ''},`,
+    body: 'Thanks for coming to our opening. Here\'s your voucher for a free ginger beer — show it at the counter on your next visit.',
+    label: 'One free ginger beer',
+    validity: (a, b) => `Valid ${a} – ${b} — single use`,
+    signoff: 'See you soon,',
+    locale: 'en-GB',
+  },
+};
+
+async function sendVoucherEmail({ email, firstName, code, lang = 'pt' }) {
   const apiKey = process.env.BREVO_API_KEY; // clé API REST (xkeysib-...), PAS la clé SMTP
   const sender = process.env.BREVO_SENDER_EMAIL; // expéditeur validé dans Brevo
   if (!apiKey || !sender) return false;
 
-  const fmt = (iso) => new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+  const t = EMAIL_TEXTS[lang] || EMAIL_TEXTS.pt;
+  const fmt = (iso) => new Date(iso + 'T12:00:00').toLocaleDateString(t.locale, { day: 'numeric', month: 'long' });
   try {
     const r = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
@@ -74,19 +96,19 @@ async function sendVoucherEmail({ email, firstName, code }) {
       body: JSON.stringify({
         sender: { name: CONFIG.cafeName, email: sender },
         to: [{ email }],
-        subject: `Votre ginger beer offerte — ${CONFIG.cafeName}`,
+        subject: t.subject(CONFIG.cafeName),
         htmlContent: `
           <div style="background:#f6f1e3;padding:32px 16px">
             <div style="font-family:-apple-system,'Segoe UI','Helvetica Neue',Arial,sans-serif;max-width:440px;margin:auto;color:#232a24;background:#fffdf6;border:1px solid #e2dbc6;border-radius:12px;padding:32px 28px">
               <div style="font-size:13px;font-weight:700;letter-spacing:5px;color:#1c5e3c;text-align:center;margin-bottom:24px">ESTUDANTINA</div>
-              <p style="margin:0 0 8px;font-size:17px;font-weight:600">Bonjour${firstName ? ' ' + firstName : ''},</p>
-              <p style="margin:0 0 22px;font-size:14px;line-height:1.6;color:#7c7a6c">Merci d'être passé pour l'inauguration. Voici votre bon pour une ginger beer offerte, à présenter au comptoir lors de votre prochain passage.</p>
+              <p style="margin:0 0 8px;font-size:17px;font-weight:600">${t.greeting(firstName)}</p>
+              <p style="margin:0 0 22px;font-size:14px;line-height:1.6;color:#7c7a6c">${t.body}</p>
               <div style="border:1.5px dashed #1c5e3c;border-radius:10px;padding:24px 16px;text-align:center">
-                <div style="font-size:11px;font-weight:600;letter-spacing:2px;color:#1c5e3c;text-transform:uppercase">Une ginger beer offerte</div>
+                <div style="font-size:11px;font-weight:600;letter-spacing:2px;color:#1c5e3c;text-transform:uppercase">${t.label}</div>
                 <div style="font-size:28px;font-weight:700;letter-spacing:4px;color:#154a2f;font-family:'SF Mono',Menlo,monospace;margin:12px 0 10px">${code}</div>
-                <div style="font-size:12px;color:#7c7a6c">Valable du ${fmt(CONFIG.validFrom)} au ${fmt(CONFIG.validUntil)} — usage unique</div>
+                <div style="font-size:12px;color:#7c7a6c">${t.validity(fmt(CONFIG.validFrom), fmt(CONFIG.validUntil))}</div>
               </div>
-              <p style="margin:22px 0 0;font-size:13px;line-height:1.6;color:#7c7a6c">À bientôt,<br>${CONFIG.cafeName} — <a href="https://instagram.com/${CONFIG.instagramHandle}" style="color:#1c5e3c">@${CONFIG.instagramHandle}</a></p>
+              <p style="margin:22px 0 0;font-size:13px;line-height:1.6;color:#7c7a6c">${t.signoff}<br>${CONFIG.cafeName} — <a href="https://instagram.com/${CONFIG.instagramHandle}" style="color:#1c5e3c">@${CONFIG.instagramHandle}</a></p>
             </div>
           </div>`,
       }),

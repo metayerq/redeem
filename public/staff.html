@@ -53,15 +53,15 @@
   <section id="login">
     <h1>PIN staff</h1>
     <input type="password" id="pin" inputmode="numeric" autocomplete="off">
-    <button id="login-btn">Entrer</button>
+    <button id="login-btn">Entrar</button>
   </section>
 
   <section id="redeem" class="hidden">
-    <h1>Valider un bon</h1>
+    <h1>Validar um vale</h1>
     <input type="text" id="code" autocomplete="off" autocapitalize="characters" placeholder="GB-XXXX">
-    <button id="redeem-btn">Valider</button>
+    <button id="redeem-btn">Validar</button>
     <div class="result" id="result"></div>
-    <a href="/admin">Stats et contacts</a>
+    <a href="/admin">Estatísticas e contactos</a>
   </section>
 
 </div>
@@ -85,11 +85,11 @@ $('pin').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('login-bt
 $('code').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('redeem-btn').click(); });
 
 const MESSAGES = {
-  redeemed:         { cls: 'ok',   text: 'BON VALIDE', sub: 'Une ginger beer offerte.' },
-  already_redeemed: { cls: 'bad',  text: 'DÉJÀ UTILISÉ', sub: '' },
-  unknown:          { cls: 'bad',  text: 'CODE INCONNU', sub: 'Vérifiez la saisie.' },
-  not_yet_valid:    { cls: 'warn', text: 'PAS ENCORE VALABLE', sub: '' },
-  expired:          { cls: 'warn', text: 'BON EXPIRÉ', sub: '' },
+  redeemed:         { cls: 'ok',   text: 'VALE VÁLIDO', sub: 'Uma ginger beer oferecida.' },
+  already_redeemed: { cls: 'bad',  text: 'JÁ UTILIZADO', sub: '' },
+  unknown:          { cls: 'bad',  text: 'CÓDIGO DESCONHECIDO', sub: 'Verifica o código.' },
+  not_yet_valid:    { cls: 'warn', text: 'AINDA NÃO VÁLIDO', sub: '' },
+  expired:          { cls: 'warn', text: 'VALE EXPIRADO', sub: '' },
 };
 
 $('redeem-btn').addEventListener('click', async () => {
@@ -107,16 +107,16 @@ $('redeem-btn').addEventListener('click', async () => {
   if (r.status === 401) {
     sessionStorage.removeItem('gb-pin');
     el.className = 'result bad';
-    el.textContent = 'PIN incorrect — rechargez la page';
+    el.textContent = 'PIN incorreto — recarrega a página';
     return;
   }
   const m = MESSAGES[data.status] || MESSAGES.unknown;
   el.className = 'result ' + m.cls;
   el.innerHTML = m.text + '<small></small>';
   let sub = m.sub;
-  if (data.status === 'redeemed' && data.firstName) sub = `Une ginger beer offerte pour ${data.firstName}.`;
-  if (data.status === 'already_redeemed') sub = 'Le ' + new Date(data.redeemedAt).toLocaleString('fr-FR');
-  if (data.status === 'not_yet_valid') sub = 'Valable à partir du ' + new Date(data.validFrom + 'T12:00:00').toLocaleDateString('fr-FR');
+  if (data.status === 'redeemed' && data.firstName) sub = `Uma ginger beer para ${data.firstName}.`;
+  if (data.status === 'already_redeemed') sub = 'Em ' + new Date(data.redeemedAt).toLocaleString('pt-PT');
+  if (data.status === 'not_yet_valid') sub = 'Válido a partir de ' + new Date(data.validFrom + 'T12:00:00').toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' });
   el.querySelector('small').textContent = sub;
   $('code').value = '';
   $('code').focus();
