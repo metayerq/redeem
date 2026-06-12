@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — stats &amp; export</title>
+<style>
+  :root { --ginger: #c9701a; --ink: #3a2a1a; }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #fdf6ec; color: var(--ink);
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 20px;
+  }
+  .card { width: 100%; max-width: 420px; background: #fff; border-radius: 20px; padding: 26px 22px; box-shadow: 0 6px 24px rgba(58,42,26,.12); }
+  h1 { font-size: 1.3rem; margin-bottom: 18px; }
+  input { width: 100%; padding: 14px; font-size: 1.1rem; border: 2px solid #e6dac9; border-radius: 12px; letter-spacing: 6px; text-align: center; }
+  button { width: 100%; margin-top: 14px; padding: 15px; font-size: 1rem; font-weight: 700; color: #fff; background: var(--ginger); border: none; border-radius: 12px; cursor: pointer; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 18px 0; }
+  .stat { background: #fdf6ec; border-radius: 12px; padding: 14px 6px; text-align: center; }
+  .stat b { display: block; font-size: 1.7rem; color: var(--ginger); }
+  .stat span { font-size: .72rem; color: #7a6650; }
+  .hidden { display: none; }
+  a { color: var(--ginger); font-size: .8rem; display: block; text-align: center; margin-top: 18px; }
+  .err { color: #b3261e; font-size: .85rem; margin-top: 10px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="card">
+  <section id="login">
+    <h1>🔐 PIN admin</h1>
+    <input type="password" id="pin" inputmode="numeric" placeholder="····">
+    <button id="login-btn">Voir les stats</button>
+    <p class="err" id="err"></p>
+  </section>
+
+  <section id="panel" class="hidden">
+    <h1>📊 Inauguration — suivi</h1>
+    <div class="stats">
+      <div class="stat"><b id="s-issued">–</b><span>bons émis</span></div>
+      <div class="stat"><b id="s-redeemed">–</b><span>utilisés</span></div>
+      <div class="stat"><b id="s-optins">–</b><span>opt-in news</span></div>
+    </div>
+    <button id="export-btn">⬇ Exporter les contacts (CSV)</button>
+    <a href="/staff">→ Retour à la validation des bons</a>
+  </section>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+let pin = sessionStorage.getItem('gb-pin') || '';
+
+async function loadStats() {
+  const r = await fetch('/api/stats', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pin }),
+  });
+  if (!r.ok) { $('err').textContent = 'PIN incorrect'; sessionStorage.removeItem('gb-pin'); return false; }
+  const s = await r.json();
+  $('s-issued').textContent = s.issued;
+  $('s-redeemed').textContent = s.redeemed;
+  $('s-optins').textContent = s.optIns;
+  $('login').classList.add('hidden');
+  $('panel').classList.remove('hidden');
+  return true;
+}
+if (pin) loadStats();
+
+$('login-btn').addEventListener('click', async () => {
+  pin = $('pin').value;
+  if (await loadStats()) sessionStorage.setItem('gb-pin', pin);
+});
+
+$('export-btn').addEventListener('click', async () => {
+  const r = await fetch('/api/export', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pin }),
+  });
+  const blob = await r.blob();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'contacts-cafe.csv';
+  a.click();
+});
+</script>
+</body>
+</html>

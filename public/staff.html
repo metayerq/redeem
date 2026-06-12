@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staff — validation des bons</title>
+<style>
+  :root { --ginger: #c9701a; --cream: #fdf6ec; --ink: #3a2a1a; }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--ink); color: #fff;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    padding: 24px 20px;
+  }
+  .card { width: 100%; max-width: 420px; }
+  h1 { font-size: 1.3rem; margin-bottom: 18px; text-align: center; }
+  input {
+    width: 100%; padding: 18px; font-size: 1.6rem; text-align: center;
+    font-family: ui-monospace, Menlo, monospace; letter-spacing: 3px;
+    border: none; border-radius: 14px; text-transform: uppercase;
+  }
+  input#pin { font-size: 1.2rem; letter-spacing: 8px; }
+  button {
+    width: 100%; margin-top: 14px; padding: 18px; font-size: 1.15rem; font-weight: 700;
+    color: #fff; background: var(--ginger); border: none; border-radius: 14px; cursor: pointer;
+  }
+  .result {
+    margin-top: 20px; padding: 26px 16px; border-radius: 16px;
+    text-align: center; font-size: 1.3rem; font-weight: 800; display: none;
+  }
+  .result small { display: block; font-size: .85rem; font-weight: 400; margin-top: 8px; opacity: .85; }
+  .ok { background: #2e7d32; }
+  .bad { background: #b3261e; }
+  .warn { background: #b07a00; }
+  .hidden { display: none; }
+  a { color: #d9b48a; font-size: .8rem; display: block; text-align: center; margin-top: 22px; }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <section id="login">
+    <h1>🔐 PIN staff</h1>
+    <input type="password" id="pin" inputmode="numeric" autocomplete="off" placeholder="····">
+    <button id="login-btn">Entrer</button>
+  </section>
+
+  <section id="redeem" class="hidden">
+    <h1>☕ Valider un bon</h1>
+    <input type="text" id="code" autocomplete="off" autocapitalize="characters" placeholder="GB-XXXX">
+    <button id="redeem-btn">Valider ✔</button>
+    <div class="result" id="result"></div>
+    <a href="/admin">→ Stats &amp; export des contacts</a>
+  </section>
+
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+let pin = sessionStorage.getItem('gb-pin') || '';
+
+function openRedeem() {
+  $('login').classList.add('hidden');
+  $('redeem').classList.remove('hidden');
+  $('code').focus();
+}
+if (pin) openRedeem();
+
+$('login-btn').addEventListener('click', () => {
+  pin = $('pin').value;
+  sessionStorage.setItem('gb-pin', pin);
+  openRedeem();
+});
+$('pin').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('login-btn').click(); });
+$('code').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('redeem-btn').click(); });
+
+const MESSAGES = {
+  redeemed:        { cls: 'ok',   text: '✅ BON VALIDE', sub: 'Une ginger beer offerte !' },
+  already_redeemed:{ cls: 'bad',  text: '❌ DÉJÀ UTILISÉ', sub: '' },
+  unknown:         { cls: 'bad',  text: '❌ CODE INCONNU', sub: 'Vérifie la saisie.' },
+  not_yet_valid:   { cls: 'warn', text: '⏳ PAS ENCORE VALABLE', sub: '' },
+  expired:         { cls: 'warn', text: '⌛ BON EXPIRÉ', sub: '' },
+};
+
+$('redeem-btn').addEventListener('click', async () => {
+  const code = $('code').value.trim();
+  if (!code) return;
+  const r = await fetch('/api/redeem', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pin, code }),
+  });
+  const data = await r.json();
+  const el = $('result');
+  el.style.display = 'block';
+
+  if (r.status === 401) {
+    sessionStorage.removeItem('gb-pin');
+    el.className = 'result bad';
+    el.textContent = '🔐 PIN incorrect — recharge la page';
+    return;
+  }
+  const m = MESSAGES[data.status] || MESSAGES.unknown;
+  el.className = 'result ' + m.cls;
+  el.innerHTML = m.text + '<small></small>';
+  let sub = m.sub;
+  if (data.status === 'redeemed' && data.firstName) sub = `Une ginger beer offerte pour ${data.firstName} !`;
+  if (data.status === 'already_redeemed') sub = 'Le ' + new Date(data.redeemedAt).toLocaleString('fr-FR');
+  if (data.status === 'not_yet_valid') sub = 'Valable à partir du ' + new Date(data.validFrom + 'T12:00:00').toLocaleDateString('fr-FR');
+  el.querySelector('small').textContent = sub;
+  $('code').value = '';
+  $('code').focus();
+});
+</script>
+</body>
+</html>
